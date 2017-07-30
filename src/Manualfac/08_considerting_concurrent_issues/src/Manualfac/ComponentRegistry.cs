@@ -45,7 +45,10 @@ namespace Manualfac
                 return false;
             }
 
-            Register(sourceCreatedRegistration);
+            lock (syncObj)
+            {
+                Register(sourceCreatedRegistration);
+            }
             registration = sourceCreatedRegistration;
             return true;
         }

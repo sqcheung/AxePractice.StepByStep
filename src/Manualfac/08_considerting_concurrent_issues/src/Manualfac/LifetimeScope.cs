@@ -44,24 +44,27 @@ namespace Manualfac
 
         public object GetCreateShare(ComponentRegistration registration)
         {
-            if (registration.Sharing == InstanceSharing.Shared)
+            lock (syncObj)
             {
-                object component;
-                if (sharedInstances.TryGetValue(registration.Service, out component))
+                if (registration.Sharing == InstanceSharing.Shared)
                 {
-                    return component;
+                    object component;
+                    if (sharedInstances.TryGetValue(registration.Service, out component))
+                    {
+                        return component;
+                    }
                 }
+
+                object instance = registration.Activator.Activate(this);
+                Disposer.AddItemsToDispose(instance);
+
+                if (registration.Sharing == InstanceSharing.Shared)
+                {
+                    sharedInstances.Add(registration.Service, instance);
+                }
+
+                return instance;
             }
-
-            object instance = registration.Activator.Activate(this);
-            Disposer.AddItemsToDispose(instance);
-
-            if (registration.Sharing == InstanceSharing.Shared)
-            {
-                sharedInstances.Add(registration.Service, instance);
-            }
-
-            return instance;
         }
 
         public ILifetimeScope BeginLifetimeScope()
