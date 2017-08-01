@@ -80,7 +80,14 @@ namespace LocalApi
 
         static Task<HttpResponseMessage> Execute(ActionDescriptor actionDescriptor, MethodInfo method)
         {
-            throw new NotImplementedException();
+            object response = method.Invoke(actionDescriptor.Controller, null);
+            var asyncTask = response as Task<HttpResponseMessage>;
+            if (asyncTask != null) { return asyncTask;}
+
+            var responseMessage = response as HttpResponseMessage;
+            if (responseMessage != null) { return Task.FromResult(responseMessage);}
+            
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
         }
 
         #endregion
