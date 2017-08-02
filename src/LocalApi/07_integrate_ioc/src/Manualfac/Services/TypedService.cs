@@ -2,7 +2,7 @@
 
 namespace Manualfac.Services
 {
-    class TypedService : Service, IEquatable<TypedService>, IServiceWithType
+    public class TypedService : Service, IEquatable<TypedService>, IServiceWithType
     {
         public TypedService(Type serviceType)
         {

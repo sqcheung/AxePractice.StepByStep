@@ -32,8 +32,12 @@ namespace LocalApi
             /*
              * Please implement the method to dispose request context if there is any.
              */
-
-            throw new NotImplementedException();
+            object context;
+            if (request.Properties.TryGetValue(requestContextKey, out context))
+            {
+                ((HttpRequestContext) context).Dispose();
+            }
+            request.Properties.Remove(requestContextKey);
 
             #endregion
         }

@@ -1,10 +1,12 @@
 using System;
 using LocalApi;
+using Manualfac.Services;
 
 namespace Manualfac.LocalApiIntegration
 {
     class ManualfacDependencyScope : IDependencyScope
     {
+
         #region Please implement the class
 
         /*
@@ -13,14 +15,21 @@ namespace Manualfac.LocalApiIntegration
          * 
          * You can add a public/internal constructor and non-public fields if needed.
          */
+        readonly ILifetimeScope lifeTimeScope;
+
+        public ManualfacDependencyScope(ILifetimeScope lifeTimeScope)
+        {
+            this.lifeTimeScope = lifeTimeScope;
+        }
+
         public void Dispose()
         {
-            throw new NotImplementedException();
+            lifeTimeScope.Dispose();
         }
 
         public object GetService(Type type)
         {
-            throw new NotImplementedException();
+            return lifeTimeScope.ResolveComponent(new TypedService(type));
         }
 
         #endregion
