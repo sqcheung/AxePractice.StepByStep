@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Web.Http;
 using Autofac;
 using Autofac.Integration.WebApi;
+using NLog;
 
 namespace SimpleIntegration
 {
@@ -16,7 +17,7 @@ namespace SimpleIntegration
             var container = BuildContainer();
 
             configuration.DependencyResolver = new AutofacWebApiDependencyResolver(container);
-            configuration.Filters.Add(new LogFilter());
+            configuration.Filters.Add(new LogFilter(container.Resolve<IMyLogger>()));
         }
 
         static IContainer BuildContainer()
@@ -24,6 +25,7 @@ namespace SimpleIntegration
             var builder = new ContainerBuilder();
             builder.RegisterType<UserInfo>();
             builder.RegisterApiControllers(Assembly.GetExecutingAssembly());
+            builder.Register(l => new MyLogger(LogManager.GetLogger("mylogger"))).As<IMyLogger>().SingleInstance();
             builder.RegisterType<Stopwatch>().InstancePerLifetimeScope();
             return builder.Build();
         }
