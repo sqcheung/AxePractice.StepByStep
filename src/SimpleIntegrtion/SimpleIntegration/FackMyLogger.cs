@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace SimpleIntegration
 {
@@ -8,6 +9,11 @@ namespace SimpleIntegration
         public void Log(string info)
         {
             Logs.Push(info);
+        }
+
+        public List<string> GetLogs()
+        {
+            return Logs.ToList();
         }
     }
 }
