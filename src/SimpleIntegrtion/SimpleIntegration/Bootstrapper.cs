@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Reflection;
 using System.Web.Http;
 using Autofac;
@@ -10,10 +11,12 @@ namespace SimpleIntegration
         public static void Init(HttpConfiguration configuration)
         {
             configuration.Routes.MapHttpRoute("message", "message", new {controller = "Message", action = "Get"});
+            configuration.Routes.MapHttpRoute("hello", "hello", new {controller = "Message", action = "Hello"});
 
             var container = BuildContainer();
 
             configuration.DependencyResolver = new AutofacWebApiDependencyResolver(container);
+            configuration.Filters.Add(new LogFilter());
         }
 
         static IContainer BuildContainer()
@@ -21,6 +24,7 @@ namespace SimpleIntegration
             var builder = new ContainerBuilder();
             builder.RegisterType<UserInfo>();
             builder.RegisterApiControllers(Assembly.GetExecutingAssembly());
+            builder.RegisterType<Stopwatch>().InstancePerLifetimeScope();
             return builder.Build();
         }
     }
