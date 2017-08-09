@@ -1,0 +1,22 @@
+﻿using System.Net;
+using System.Net.Http;
+using System.Web.Http;
+
+namespace SimpleIntegration
+{
+    public class MessageController: ApiController
+    {
+        readonly UserInfo userInfo;
+
+        public MessageController(UserInfo userInfo)
+        {
+            this.userInfo = userInfo;
+        }
+
+        [HttpGet]
+        public HttpResponseMessage Get()
+        {
+            return Request.CreateResponse(HttpStatusCode.OK, new {message = $"Hello {userInfo.UserName}"});
+        }
+    }
+}

@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleIntegration", "SimpleIntegration\SimpleIntegration.csproj", "{3D6EBA9F-CA13-47E1-A864-44971DBE447D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleIntegration.Test", "SimpleIntegration.Test\SimpleIntegration.Test.csproj", "{5A6536B0-B506-4F07-B9C0-35FB0F840E14}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3D6EBA9F-CA13-47E1-A864-44971DBE447D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D6EBA9F-CA13-47E1-A864-44971DBE447D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D6EBA9F-CA13-47E1-A864-44971DBE447D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D6EBA9F-CA13-47E1-A864-44971DBE447D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A6536B0-B506-4F07-B9C0-35FB0F840E14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A6536B0-B506-4F07-B9C0-35FB0F840E14}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A6536B0-B506-4F07-B9C0-35FB0F840E14}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A6536B0-B506-4F07-B9C0-35FB0F840E14}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
