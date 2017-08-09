@@ -25,7 +25,7 @@ namespace SimpleIntegration.Test
         static HttpServer CreatHttpServer()
         {
             var configuration = new HttpConfiguration();
-            Bootstrapper.Init(configuration);
+            Bootstrapper.Init(configuration, Bootstrapper.BuildContainer());
             var httpServer = new HttpServer(configuration);
             return httpServer;
         }
