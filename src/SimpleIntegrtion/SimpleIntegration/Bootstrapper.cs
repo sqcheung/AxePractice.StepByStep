@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Web.Http;
@@ -9,17 +10,20 @@ namespace SimpleIntegration
 {
     public static class Bootstrapper
     {
-        public static void Init(HttpConfiguration configuration)
+        public static IContainer Init(HttpConfiguration configuration, Action<ContainerBuilder> customSetup)
         {
             configuration.Routes.MapHttpRoute("message", "message", new {controller = "Message", action = "Get"});
             configuration.Routes.MapHttpRoute("hello", "hello", new {controller = "Message", action = "Hello"});
 
-            IContainer container = BuildContainer();
+            IContainer container = BuildContainer(customSetup);
+
             configuration.DependencyResolver = new AutofacWebApiDependencyResolver(container);
             configuration.Filters.Add(new LogFilter(container.Resolve<IMyLogger>()));
+
+            return container;
         }
 
-        public static IContainer BuildContainer()
+        static IContainer BuildContainer(Action<ContainerBuilder> customSetup)
         {
             var builder = new ContainerBuilder();
             builder.RegisterType<UserInfo>();
@@ -27,7 +31,9 @@ namespace SimpleIntegration
             builder.Register(l => new MyLogger(LogManager.GetLogger("mylogger"))).As<IMyLogger>().SingleInstance();
             builder.RegisterType<Stopwatch>().InstancePerLifetimeScope();
 
-            return builder.Build();
+            customSetup(builder);
+            IContainer container = builder.Build();
+            return container;
         }
     }
 }

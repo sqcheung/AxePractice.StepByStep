@@ -5,10 +5,10 @@ namespace SimpleIntegration
 {
     public class FakeMyLogger: IMyLogger
     {
-        readonly Stack<string> Logs = new Stack<string>(); 
+        readonly List<string> Logs = new List<string>(); 
         public void Log(string info)
         {
-            Logs.Push(info);
+            Logs.Add(info);
         }
 
         public List<string> GetLogs()

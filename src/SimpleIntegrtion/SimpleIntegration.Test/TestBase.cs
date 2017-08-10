@@ -1,18 +1,26 @@
 ﻿using System;
 using System.Net.Http;
 using System.Web.Http;
+using Autofac;
 
 namespace SimpleIntegration.Test
 {
     public class TestBase: IDisposable
     {
+        protected IContainer container;
         readonly HttpServer httpServer;
         public HttpClient Client { get; }
 
 
         public TestBase()
         {
-            httpServer = CreatHttpServer();
+            var configuration = new HttpConfiguration();
+
+            container = Bootstrapper.Init(configuration,
+                builder => builder.Register(l => new FakeMyLogger()).As<IMyLogger>().SingleInstance());
+
+            httpServer = new HttpServer(configuration);
+
             Client = CreatHttpClient(httpServer);
         }
 
@@ -20,15 +28,6 @@ namespace SimpleIntegration.Test
         {
             var httpClient = new HttpClient(httpServer);
             return httpClient;
-        }
-
-        static HttpServer CreatHttpServer()
-        {
-            var configuration = new HttpConfiguration();
-
-            Bootstrapper.Init(configuration);
-            var httpServer = new HttpServer(configuration);
-            return httpServer;
         }
 
         public void Dispose()
