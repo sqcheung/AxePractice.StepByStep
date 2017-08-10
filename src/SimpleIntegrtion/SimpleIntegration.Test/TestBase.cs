@@ -1,24 +1,20 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Net.Http;
 using System.Web.Http;
-using Autofac;
 
 namespace SimpleIntegration.Test
 {
     public class TestBase: IDisposable
     {
         readonly HttpServer httpServer;
-        protected IContainer buildContainer;
+        public HttpClient Client { get; }
+
 
         public TestBase()
         {
-            buildContainer = BuildContainer();
-            httpServer = CreatHttpServer(buildContainer);
+            httpServer = CreatHttpServer();
             Client = CreatHttpClient(httpServer);
         }
-
-        public HttpClient Client { get; }
 
         static HttpClient CreatHttpClient(HttpServer httpServer)
         {
@@ -26,24 +22,13 @@ namespace SimpleIntegration.Test
             return httpClient;
         }
 
-        static HttpServer CreatHttpServer(IContainer buildContainer)
+        static HttpServer CreatHttpServer()
         {
             var configuration = new HttpConfiguration();
 
-            Bootstrapper.Init(configuration, buildContainer);
+            Bootstrapper.Init(configuration);
             var httpServer = new HttpServer(configuration);
             return httpServer;
-        }
-
-        static IContainer BuildContainer()
-        {
-            var builder = new ContainerBuilder();
-            builder.RegisterType<UserInfo>();
-            builder.RegisterType<MessageController>();
-            builder.RegisterType<Stopwatch>().InstancePerLifetimeScope();
-            builder.Register(l => new FakeMyLogger()).As<IMyLogger>().SingleInstance();
-            IContainer container = builder.Build();
-            return container;
         }
 
         public void Dispose()

@@ -9,11 +9,12 @@ namespace SimpleIntegration
 {
     public static class Bootstrapper
     {
-        public static void Init(HttpConfiguration configuration, IContainer container)
+        public static void Init(HttpConfiguration configuration)
         {
             configuration.Routes.MapHttpRoute("message", "message", new {controller = "Message", action = "Get"});
             configuration.Routes.MapHttpRoute("hello", "hello", new {controller = "Message", action = "Hello"});
 
+            IContainer container = BuildContainer();
             configuration.DependencyResolver = new AutofacWebApiDependencyResolver(container);
             configuration.Filters.Add(new LogFilter(container.Resolve<IMyLogger>()));
         }
