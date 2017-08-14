@@ -15,8 +15,7 @@ namespace SimpleIntegration
             this.logger = logger;
         }
 
-        protected override Task<HttpResponseMessage> SendAsync(
-            HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override  async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             IDependencyScope lifetimeScope = request.GetDependencyScope();
             var sw = (Stopwatch)lifetimeScope.GetService(typeof(Stopwatch));
@@ -24,14 +23,10 @@ namespace SimpleIntegration
             sw.Start();
 
             logger.Log($"{request.RequestUri} Request beginning....");
+            HttpResponseMessage response = await base.SendAsync(request, cancellationToken);
+            logger.Log($"{request.RequestUri} end, cycle time is {sw.Elapsed}");
 
-            return base.SendAsync(request, cancellationToken).ContinueWith(t =>
-            {
-                HttpResponseMessage result = t.Result;
-                sw.Stop();
-                logger.Log($"{request.RequestUri} end, cycle time is {sw.Elapsed}");
-                return result;
-            }, cancellationToken);
+            return response;
         }
 
     }
