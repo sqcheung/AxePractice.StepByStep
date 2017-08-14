@@ -18,8 +18,8 @@ namespace SimpleIntegration
             IContainer container = BuildContainer(customSetup);
 
             configuration.DependencyResolver = new AutofacWebApiDependencyResolver(container);
-            configuration.Filters.Add(new LogFilter(container.Resolve<IMyLogger>()));
-
+//            configuration.Filters.Add(new LogFilter(container.Resolve<IMyLogger>()));
+            configuration.MessageHandlers.Add(new LogHandler(container.Resolve<IMyLogger>()));
             return container;
         }
 

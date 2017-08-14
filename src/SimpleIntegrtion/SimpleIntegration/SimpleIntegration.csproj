@@ -108,6 +108,7 @@
     </Compile>
     <Compile Include="LogFilter.cs" />
     <Compile Include="FackMyLogger.cs" />
+    <Compile Include="LogHandler.cs" />
     <Compile Include="MessageController.cs" />
     <Compile Include="MyLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
