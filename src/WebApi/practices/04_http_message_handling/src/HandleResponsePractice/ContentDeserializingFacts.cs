@@ -3,7 +3,10 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+<<<<<<< HEAD
 using Newtonsoft.Json.Linq;
+=======
+>>>>>>> 214757b884a352f11c59c8c37a5a555b3bd36f95
 using Xunit;
 
 namespace HandleResponsePractice
@@ -40,7 +43,7 @@ namespace HandleResponsePractice
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
             object content = await response.Content.ReadAsAsync<object>();
-
+           
             int id = default(int);
             string name = default(string);
             IEnumerable<string> sizes = default(IEnumerable<string>);
@@ -53,7 +56,6 @@ namespace HandleResponsePractice
             id = jObject["id"].ToObject<int>();
             name = jObject["name"].ToObject<string>();
             sizes = jObject["sizes"].ToObject<IEnumerable<string>>();
-
             #endregion
             
             Assert.Equal(1, id);

@@ -1,4 +1,3 @@
-﻿using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
@@ -23,8 +22,7 @@ namespace SampleWebApi
                 var response = new HttpResponseMessage(HttpStatusCode.NotAcceptable);
                 throw new HttpResponseException(response);
             }
-
-//            return Request.CreateResponse(HttpStatusCode.OK, new {Message = "Hello"}, result.Formatter, result.MediaType);
+            
             return new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new ObjectContent<MessageDto>(new MessageDto() {Message = "Hello"}, result.Formatter, result.MediaType)
