@@ -1,7 +1,15 @@
-﻿using System;
+﻿using System.Collections.ObjectModel;
+using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web.Http.Controllers;
+using System.Web.Http.Dependencies;
 using System.Web.Http.Filters;
+using Newtonsoft.Json.Linq;
+using SampleWebApi.DomainModel;
+using SampleWebApi.Repositories;
+using SampleWebApi.Services;
 
 namespace SampleWebApi
 {
@@ -21,7 +29,6 @@ namespace SampleWebApi
         #region Please implement the class to pass the test
 
         readonly string userIdArgumentName;
-
         /*
          * The attribute takes an argument of the name of the userId parameter in
          * the route. For example, if the request route definition is 
@@ -35,7 +42,7 @@ namespace SampleWebApi
          */
         public RestrictedUacAttribute(string userIdArgumentName)
         {
-            throw new NotImplementedException();
+            this.userIdArgumentName = userIdArgumentName;
         }
 
         /*
@@ -49,7 +56,35 @@ namespace SampleWebApi
             HttpActionExecutedContext context,
             CancellationToken token)
         {
-            throw new NotImplementedException();
+            var objectContent = context.Response.Content as ObjectContent;
+            if (objectContent == null)
+            {
+                return;
+            }
+            var contentJson = await objectContent.ReadAsStringAsync();
+            var jObject = JObject.Parse(contentJson);
+
+            IDependencyScope lifetimeScope = context.Request.GetDependencyScope();
+            var roleRepository = (RoleRepository)lifetimeScope.GetService(typeof(RoleRepository));
+            var restrictedUacContractService = (RestrictedUacContractService)lifetimeScope.GetService(typeof(RestrictedUacContractService));
+
+            object requestedRouteDataValue = context.ActionContext.RequestContext.RouteData.Values[userIdArgumentName];
+            Collection<HttpParameterDescriptor> parameters = context.ActionContext.ActionDescriptor.GetParameters();
+            if (requestedRouteDataValue == null || parameters.Count == 0)
+            {
+                context.Response = context.Request.CreateResponse(HttpStatusCode.BadRequest);
+                return;
+            }
+            var requestUserId = long.Parse(requestedRouteDataValue.ToString());
+
+
+            Role role = roleRepository.Get(requestUserId);
+            if (role == Role.Normal && context.Response.IsSuccessStatusCode)
+            {
+                restrictedUacContractService.RemoveRestrictedInfo(requestUserId, jObject);
+                context.Response.Content = new ObjectContent(jObject.GetType(), jObject, objectContent.Formatter);
+            }
+
         }
 
         #endregion
