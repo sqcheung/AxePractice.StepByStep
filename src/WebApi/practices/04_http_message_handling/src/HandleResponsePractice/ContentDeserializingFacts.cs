@@ -3,10 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-<<<<<<< HEAD
 using Newtonsoft.Json.Linq;
-=======
->>>>>>> 214757b884a352f11c59c8c37a5a555b3bd36f95
 using Xunit;
 
 namespace HandleResponsePractice
