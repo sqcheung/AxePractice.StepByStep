@@ -1,13 +1,15 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web.Http.Controllers;
+using System.Web.Http;
 using System.Web.Http.Dependencies;
 using System.Web.Http.Filters;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using SampleWebApi.DomainModel;
 using SampleWebApi.Repositories;
 using SampleWebApi.Services;
 
@@ -40,8 +42,13 @@ namespace SampleWebApi
          * passing the parameter to a RoleRepository. And that is why we ask for
          * it.
          */
+
         public RestrictedUacAttribute(string userIdArgumentName)
         {
+            if (userIdArgumentName == null)
+            {
+                throw new ArgumentNullException(nameof(userIdArgumentName));
+            }
             this.userIdArgumentName = userIdArgumentName;
         }
 
@@ -52,39 +59,82 @@ namespace SampleWebApi
          * 
          * Please carefully implement the method to pass all the tests.
          */
+
         public override async Task OnActionExecutedAsync(
             HttpActionExecutedContext context,
             CancellationToken token)
         {
-            var objectContent = context.Response.Content as ObjectContent;
-            if (objectContent == null)
+            if (context == null) throw new ArgumentException(nameof(context));
+            if (!IsSuccessResponse(context)) { return; }
+            if (context.Response.Content == null) { return; }
+            var actionArguments = context.ActionContext?.ActionArguments;
+
+            long userId = getBindedUserId(actionArguments);
+
+            var restrictedUacContractService = Resolve<RestrictedUacContractService>(context.Request);
+            string contentString = await context.Response.Content.ReadAsStringAsync();
+            var jobject = JsonConvert.DeserializeObject<object>(contentString) as JObject;
+            if (jobject == null)
+            {
+                throw new ArgumentException();
+            }
+            if (!restrictedUacContractService.RemoveRestrictedInfo(userId, jobject))
             {
                 return;
             }
-            var contentJson = await objectContent.ReadAsStringAsync();
-            var jObject = JObject.Parse(contentJson);
+            context.Response.Content = new ObjectContent<JObject>(jobject,
+                context.ActionContext.ControllerContext.Configuration.Formatters.JsonFormatter);
+        }
 
-            IDependencyScope lifetimeScope = context.Request.GetDependencyScope();
-            var roleRepository = (RoleRepository)lifetimeScope.GetService(typeof(RoleRepository));
-            var restrictedUacContractService = (RestrictedUacContractService)lifetimeScope.GetService(typeof(RestrictedUacContractService));
-
-            object requestedRouteDataValue = context.ActionContext.RequestContext.RouteData.Values[userIdArgumentName];
-            Collection<HttpParameterDescriptor> parameters = context.ActionContext.ActionDescriptor.GetParameters();
-            if (requestedRouteDataValue == null || parameters.Count == 0)
+        T Resolve<T>(HttpRequestMessage request)
+        {
+            if (request == null)
             {
-                context.Response = context.Request.CreateResponse(HttpStatusCode.BadRequest);
-                return;
-            }
-            var requestUserId = long.Parse(requestedRouteDataValue.ToString());
-
-
-            Role role = roleRepository.Get(requestUserId);
-            if (role == Role.Normal && context.Response.IsSuccessStatusCode)
-            {
-                restrictedUacContractService.RemoveRestrictedInfo(requestUserId, jObject);
-                context.Response.Content = new ObjectContent(jObject.GetType(), jObject, objectContent.Formatter);
+                throw new ArgumentNullException(nameof(request));
             }
 
+            IDependencyScope scope = request.GetDependencyScope();
+            if (scope == null)
+            {
+                throw new HttpResponseException(HttpStatusCode.InternalServerError);
+            }
+
+            var service = (T) scope.GetService(typeof(T));
+            if (service == null)
+            {
+                throw new HttpResponseException(HttpStatusCode.InternalServerError);
+            }
+
+            return service;
+        }
+
+        long getBindedUserId(Dictionary<string, object> actionArguments)
+        {
+            if (!actionArguments.ContainsKey(userIdArgumentName))
+            {
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+            }
+            try
+            {
+                return (long) actionArguments[userIdArgumentName];
+            }
+            catch (InvalidCastException)
+            {
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+            }
+        }
+
+        bool IsSuccessResponse(HttpActionExecutedContext context)
+        {
+            if (context.Exception != null)
+            {
+                return false;
+            }
+            if (context.Response == null)
+            {
+                return false;
+            }
+            return context.Response.IsSuccessStatusCode;
         }
 
         #endregion
