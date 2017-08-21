@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -10,7 +9,6 @@ using System.Web.Http.Dependencies;
 using System.Web.Http.Filters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using SampleWebApi.Repositories;
 using SampleWebApi.Services;
 
 namespace SampleWebApi
@@ -76,14 +74,13 @@ namespace SampleWebApi
             var jobject = JsonConvert.DeserializeObject<object>(contentString) as JObject;
             if (jobject == null)
             {
-                throw new ArgumentException();
+                throw new HttpResponseException(HttpStatusCode.InternalServerError);
             }
             if (!restrictedUacContractService.RemoveRestrictedInfo(userId, jobject))
             {
                 return;
             }
-            context.Response.Content = new ObjectContent<JObject>(jobject,
-                context.ActionContext.ControllerContext.Configuration.Formatters.JsonFormatter);
+            context.Response.Content = new ObjectContent<JObject>(jobject, context.ActionContext.ControllerContext.Configuration.Formatters.JsonFormatter);
         }
 
         T Resolve<T>(HttpRequestMessage request)
