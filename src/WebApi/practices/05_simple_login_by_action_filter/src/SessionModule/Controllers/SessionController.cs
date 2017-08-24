@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -36,12 +37,12 @@ namespace SessionModule.Controllers
                 HttpStatusCode.OK, 
                 new {Token = token, UserFullname = userSession.Username});
         }
-
+           
         [HttpPost]
         public HttpResponseMessage Create(CredentialDto credential)
         {
-            string token = sessionServices.Create(
-                new Credential(credential.Username, credential.Password));
+            string token = sessionServices.Create(new Credential(credential.Username, credential.Password));
+
             if (token == null)
             {
                 return Request.CreateResponse(HttpStatusCode.Forbidden);
@@ -55,9 +56,10 @@ namespace SessionModule.Controllers
             // A created result should contains the resource URI. Since the user
             // has logged into the system, it should contains the correct cookie
             // setter.
-
-            throw new NotImplementedException();
-
+            string BaseAddress = new Uri(Request.RequestUri, Request.GetRequestContext().VirtualPathRoot).AbsoluteUri;
+            response.Headers.Location = new Uri($"{BaseAddress}session/{token}", UriKind.Absolute);
+            var cookie = new CookieHeaderValue("X-Session-Token", token);
+            response.Headers.AddCookies(new List<CookieHeaderValue>{cookie });
             #endregion
 
             return response;
@@ -72,7 +74,8 @@ namespace SessionModule.Controllers
                 #region Please implement the method removing the cookie
 
                 // Please clear the session cookie from the browser.
-                throw new NotImplementedException();
+                var cookie = new CookieHeaderValue("X-Session-Token","") {Expires = DateTimeOffset.MinValue};
+                response.Headers.AddCookies(new List<CookieHeaderValue>{cookie });
 
                 #endregion
             }
@@ -81,3 +84,5 @@ namespace SessionModule.Controllers
         }
     }
 }
+
+
