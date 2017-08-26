@@ -39,7 +39,8 @@ namespace SessionModule
 
         public UserSession Get(string token)
         {
-            bool getSessionSuccess = sessions.TryGetValue(token, out UserSession session);
+            UserSession session;
+            bool getSessionSuccess = sessions.TryGetValue(token, out session);
             if (!getSessionSuccess) { return null; }
             return session;
         }
