@@ -1,4 +1,7 @@
 using System;
+using System.Net;
+using System.Net.Http;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http.Controllers;
@@ -21,9 +24,24 @@ namespace SessionModuleClient
              * annotated by this attribute.
              */
 
-            throw new NotImplementedException();
+            var principal = actionContext.RequestContext.Principal
+               as ClaimsPrincipal;
+            var identity = principal?.Identity as ClaimsIdentity;
+            if (identity == null || !identity.IsAuthenticated)
+            {
+                SetAsUnauthorized(actionContext);
+                return Task.CompletedTask;
+            }
+
+            return Task.CompletedTask;
 
             #endregion
+        }
+
+        static void SetAsUnauthorized(HttpActionContext actionContext)
+        {
+            actionContext.Response = new HttpResponseMessage(
+                HttpStatusCode.Unauthorized);
         }
     }
 }
