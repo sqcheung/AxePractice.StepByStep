@@ -31,7 +31,9 @@ namespace StreamingFacts
              * NOTE: you may have to start the WebApp application on port 49724
              * before executing the unit test.
              */
+            HttpResponseMessage response = await Client.GetAsync("stream/slow", HttpCompletionOption.ResponseHeadersRead);
 
+            filename = response.Content.Headers.ContentDisposition.FileName;
             #endregion
 
             Assert.Equal("filename.exe", filename);
